@@ -1,8 +1,7 @@
 package analytics.entity;
 
+import analytics.entity.parameter.Parameter;
 import analytics.service.Service;
-
-import java.util.List;
 
 /**
  * Created by Fomichev Yuri on 24.06.2019
@@ -10,7 +9,7 @@ import java.util.List;
  */
 
 public class Record {
-    private static int recordsCounter;
+    private static long recordsCounter;
     private Parameter id;
     private Parameter timestamp;
     private Parameter referer;
@@ -24,7 +23,7 @@ public class Record {
     private Parameter sessionID;
 
     public Record() {
-        id = Service.getParameter("ID", Integer.toString(++recordsCounter, 10));
+        id = Service.getParameter("ID", ++recordsCounter);
     }
 
     public Parameter getId() {

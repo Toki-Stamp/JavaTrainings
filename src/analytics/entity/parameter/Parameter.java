@@ -1,4 +1,4 @@
-package analytics.entity;
+package analytics.entity.parameter;
 
 /**
  * Created by Fomichev Yuri on 24.06.2019
@@ -7,7 +7,7 @@ package analytics.entity;
 
 public class Parameter {
     private String key;
-    private String value;
+    protected String value;
 
     public String getKey() {
         return key;

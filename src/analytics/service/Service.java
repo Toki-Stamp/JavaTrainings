@@ -1,9 +1,13 @@
 package analytics.service;
 
-import analytics.entity.Parameter;
+import analytics.entity.parameter.Parameter;
 import analytics.entity.Record;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -13,46 +17,80 @@ import java.util.List;
 
 public class Service {
     public static final String SPACE = " ";
+    public static final String BLANK = "-";
 
-    public static Parameter getParameter(String value, boolean doZeroing) {
-        Parameter parameter = new Parameter();
-        int index = value.indexOf(":");
+//    public static Parameter getParameter(String value, boolean doZeroing) {
+//        Parameter<String> parameter = new Parameter<>();
+//        int index = value.indexOf(":");
+//
+//        parameter.setKey(value.substring(0, index));
+//        parameter.setValue((doZeroing && value.endsWith("-")) ? "0" : value.substring(index + 1));
+//
+//        return parameter;
+//    }
 
-        parameter.setKey(value.substring(0, index));
-        parameter.setValue((doZeroing && value.endsWith("-")) ? "0" : value.substring(index + 1));
-
-        return parameter;
-    }
-
-    public static Parameter getParameter(String key, String value) {
-        Parameter parameter = new Parameter();
-
-        parameter.setKey(key);
-        parameter.setValue(value);
-
-        return parameter;
-    }
+//    public static <T> Parameter getParameter(String key, T value, String raw) {
+//        Parameter<T> parameter = new Parameter<>();
+//
+//        parameter.setKey(key);
+//        parameter.setValue(value);
+//        parameter.setRaw(raw);
+//
+//        return parameter;
+//    }
+//
+//    public static <T> Parameter getParameter(String key, T value) {
+//        Parameter<T> parameter = new Parameter<>();
+//
+//        parameter.setKey(key);
+//        parameter.setValue(value);
+//        parameter.setRaw(value.toString());
+//
+//        return parameter;
+//    }
+//
+//    public static Parameter getParameter(String raw) {
+//        try {
+//            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS");
+//            Date date = dateFormat.parse(raw.substring(1, (raw.length() - 1)));
+//
+//            return Service.getParameter("TIMESTAMP", date, raw);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return null;
+//    }
+//
+//    public static Parameter getParameter(String raw, boolean zero) {
+//        int index = raw.indexOf(":");
+//
+//        Service.getParameter(raw.substring(0, index))
+//
+//        parameter.setKey(value.substring(0, index));
+//        parameter.setValue((doZeroing && value.endsWith("-")) ? "0" : value.substring(index + 1));
+//
+//        return null;
+//    }
 
     public static Record getRecord(String rawText) {
-        final String BLANK = "-";
         int splitIndex = (rawText.indexOf("]") + 1);
         String timeStamp = rawText.substring(0, splitIndex++);
         List<String> list = Arrays.asList(rawText.substring(splitIndex).split("\\s"));
-        Record record = null;
 
-        if (!list.get(0).equals(BLANK)) {
-            record = new Record();
-            record.setTimestamp(Service.getParameter("TIMESTAMP", timeStamp));
-            record.setReferer(Service.getParameter("REFERER", list.get(0)));
-            record.setMethod(Service.getParameter("METHOD", list.get(1)));
-            record.setUrl(Service.getParameter("URL", list.get(2)));
-            record.setStatus(Service.getParameter(list.get(3), false));
-            record.setSize(Service.getParameter(list.get(4), true));
-            record.setTime(Service.getParameter(list.get(5), true));
-            record.setUserName(Service.getParameter(list.get(6), false));
-            record.setUserID(Service.getParameter(list.get(7), false));
-            record.setSessionID(Service.getParameter(list.get(8), false));
-        }
+        if (list.get(0).equals(BLANK)) return null;
+
+        Record record = new Record();
+//        record.setTimestamp(Service.getParameter(timeStamp));
+//        record.setReferer(Service.getParameter("REFERER", list.get(0)));
+//        record.setMethod(Service.getParameter("METHOD", list.get(1)));
+//        record.setUrl(Service.getParameter("URL", list.get(2)));
+//        record.setStatus(Service.getParameter(list.get(3), false));
+//            record.setSize(Service.getParameter(list.get(4), true));
+//            record.setTime(Service.getParameter(list.get(5), true));
+//            record.setUserName(Service.getParameter(list.get(6), false));
+//            record.setUserID(Service.getParameter(list.get(7), false));
+//            record.setSessionID(Service.getParameter(list.get(8), false));
 
         return record;
     }
