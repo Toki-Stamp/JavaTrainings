@@ -1,9 +1,9 @@
 package analytics.service;
 
-import analytics.entity.parameter.Parameter;
 import analytics.entity.Record;
+import analytics.entity.parameter.Parameter;
 
-import java.text.DateFormat;
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -18,16 +18,6 @@ import java.util.List;
 public class Service {
     public static final String SPACE = " ";
     public static final String BLANK = "-";
-
-//    public static Parameter getParameter(String value, boolean doZeroing) {
-//        Parameter<String> parameter = new Parameter<>();
-//        int index = value.indexOf(":");
-//
-//        parameter.setKey(value.substring(0, index));
-//        parameter.setValue((doZeroing && value.endsWith("-")) ? "0" : value.substring(index + 1));
-//
-//        return parameter;
-//    }
 
 //    public static <T> Parameter getParameter(String key, T value, String raw) {
 //        Parameter<T> parameter = new Parameter<>();
@@ -73,29 +63,77 @@ public class Service {
 //        return null;
 //    }
 
-    public static Record getRecord(String rawText) {
-        int splitIndex = (rawText.indexOf("]") + 1);
-        String timeStamp = rawText.substring(0, splitIndex++);
-        List<String> list = Arrays.asList(rawText.substring(splitIndex).split("\\s"));
+    public static Record getRecord(String text) {
+        int splitIndex = (text.indexOf("]") + 1);
+        String timeStamp = text.substring(0, splitIndex++);
+        List<String> list = Arrays.asList(text.substring(splitIndex).split("\\s"));
 
         if (list.get(0).equals(BLANK)) return null;
 
         Record record = new Record();
-//        record.setTimestamp(Service.getParameter(timeStamp));
-//        record.setReferer(Service.getParameter("REFERER", list.get(0)));
-//        record.setMethod(Service.getParameter("METHOD", list.get(1)));
-//        record.setUrl(Service.getParameter("URL", list.get(2)));
-//        record.setStatus(Service.getParameter(list.get(3), false));
-//            record.setSize(Service.getParameter(list.get(4), true));
-//            record.setTime(Service.getParameter(list.get(5), true));
-//            record.setUserName(Service.getParameter(list.get(6), false));
-//            record.setUserID(Service.getParameter(list.get(7), false));
-//            record.setSessionID(Service.getParameter(list.get(8), false));
+        record.setTimestamp(Service.setParameter(Date.class, true, "TIMESTAMP", timeStamp));
+        record.setReferer(Service.setParameter(String.class, false, "REFERER", list.get(0)));
+        record.setMethod(Service.setParameter(String.class, false, "METHOD", list.get(1)));
+        record.setUrl(Service.setParameter(String.class, false, "URL", list.get(2)));
+        record.setStatus(Service.setParameter(Integer.class, false, list.get(3)));
+        record.setSize(Service.setParameter(Long.class, true, list.get(4)));
+        record.setTime(Service.setParameter(Integer.class, true, list.get(5)));
+        record.setUserName(Service.setParameter(String.class, false, list.get(6)));
+        record.setUserID(Service.setParameter(Long.class, false, list.get(7)));
+        record.setSessionID(Service.setParameter(String.class, false, list.get(8)));
 
         return record;
     }
 
-//    public static Statistics createStatistics(String key, List<Record> records) {
+//    public static Parameter setParameter(String keyValue, Class<?> type) {
+//        try {
+//            int index = keyValue.indexOf(":");
+//            String key = keyValue.substring(0, index);
+//            String rawValue = (keyValue.endsWith("-") ? "0" : keyValue.substring(index + 1));
+//
+//            if (type.getSimpleName().toLowerCase().equals("date")) {
+//                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS");
+//
+//                return Service.setParameter(key, dateFormat.parse(rawValue.substring(1, (rawValue.length() - 1))), rawValue);
+//            }
+//
+//            return setParameter(key, type.getConstructor(String.class).newInstance(rawValue));
+//        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException | ParseException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return null;
+//    }
+
+    public static Parameter<?> setParameter(Class<?> type, boolean storeRaw, String key, String value) {
+        Object data;
+        String className = type.getSimpleName().toLowerCase();
+
+        try {
+            if (className.equals("date")) {
+                data = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS").parse(value.substring(1, (value.length() - 1)));
+            } else {
+                data = type.getConstructor(String.class).newInstance(value.endsWith("-") ? "0" : value);
+            }
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException | ParseException e) {
+            e.printStackTrace();
+
+            return null;
+        }
+
+        return new Parameter<>(key, (storeRaw ? value : null), data);
+    }
+
+    public static Parameter setParameter(Class<?> type, boolean storeRaw, String keyValue) {
+        int splitIndex = keyValue.indexOf(":");
+
+        String key = keyValue.substring(0, splitIndex);
+        String value = keyValue.substring(splitIndex + 1);
+
+        return Service.setParameter(type, storeRaw, key, value);
+    }
+
+    //    public static Statistics createStatistics(String key, List<Record> records) {
 //        Statistics statistics = new Statistics();
 //        long overallTime = 0;
 //        long overallSize = 0;

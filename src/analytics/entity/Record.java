@@ -23,7 +23,7 @@ public class Record {
     private Parameter sessionID;
 
     public Record() {
-        id = Service.getParameter("ID", ++recordsCounter);
+        id = Service.setParameter(Long.class, false, "ID", String.valueOf(++recordsCounter));
     }
 
     public Parameter getId() {
