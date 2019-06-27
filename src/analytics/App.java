@@ -1,10 +1,10 @@
 package analytics;
 
-import analytics.entity.Record;
-import analytics.service.Service;
-
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Month;
 import java.util.Scanner;
 
 public class App {
@@ -21,16 +21,47 @@ public class App {
         File file = new File(INPUT_FILE);
         Scanner scanner = new Scanner(file);
         int overallCounter = 0;
+        StringBuilder stringBuilder = new StringBuilder();
 
-        System.out.print("Processing... ");
+        LocalDate date = LocalDate.of(1983, Month.MAY, 9);
+        LocalTime time = LocalTime.of(0, 0, 13);
+        LocalTime time2 = time.plusSeconds(47);
+        System.out.println(date);
+        System.out.println(time);
+        System.out.println(time2);
 
-        while (scanner.hasNextLine()) {
-            String textLine = scanner.nextLine();
-            Record record = Service.getRecord(textLine);
+//        for (int hour = 0, end = 23; hour <= end; hour += 1) {
+//            stringBuilder
+//                    .append((hour < 10) ? ("0" + hour) : String.valueOf(hour))
+//                    .append(":")
+//                    .append("00")
+//                    .append(":")
+//                    .append("00")
+//                    .append(".")
+//                    .append("000");
+//
+//            String parseDate = stringBuilder.toString();
+//
+//            System.out.printf("hour: %2d, parseDate: %s%n", hour, parseDate);
+//            stringBuilder.setLength(0);
+//        }
 
-            if (record != null) {
-                //            String url = record.getUrl().getValue();
+//        System.out.print("Processing... ");
+//
+//        while (scanner.hasNextLine()) {
+//            String textLine = scanner.nextLine();
+//            Record record = Service.getRecord(textLine);
+//
+//            if (record != null) {
+//                System.out.println();
+//                System.out.println(record.getTimestamp().getValue());
+//                System.out.println(((Date) record.getTimestamp().getValue()).getTime());
+//                System.out.println(record.getTimestamp().getRaw());
+//                overallCounter += 1;
+//            }
+//        }
 
+//            String url = record.getUrl().getValue();
 //            if (url.endsWith(".dwr")) {
 //                if (dwrCounter <= MAX_SIZE) {
 //                    dwrCounter = Service.addToMap(dwr, url, record, dwrCounter);
@@ -40,9 +71,6 @@ public class App {
 //                }
 //            }
 //
-                overallCounter += 1;
-            }
-        }
 
 //        statistics = Service.collectStatistics(statistics, dwr);
 //

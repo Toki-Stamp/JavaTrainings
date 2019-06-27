@@ -1,6 +1,5 @@
 package analytics.entity;
 
-import analytics.entity.parameter.Parameter;
 import analytics.service.Service;
 
 /**
@@ -23,7 +22,7 @@ public class Record {
     private Parameter sessionID;
 
     public Record() {
-        id = Service.setParameter(Long.class, false, "ID", String.valueOf(++recordsCounter));
+        id = new Parameter<>("ID", null, ++recordsCounter);
     }
 
     public Parameter getId() {

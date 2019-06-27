@@ -1,7 +1,7 @@
 package analytics.service;
 
 import analytics.entity.Record;
-import analytics.entity.parameter.Parameter;
+import analytics.entity.Parameter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
@@ -19,50 +19,6 @@ public class Service {
     public static final String SPACE = " ";
     public static final String BLANK = "-";
 
-//    public static <T> Parameter getParameter(String key, T value, String raw) {
-//        Parameter<T> parameter = new Parameter<>();
-//
-//        parameter.setKey(key);
-//        parameter.setValue(value);
-//        parameter.setRaw(raw);
-//
-//        return parameter;
-//    }
-//
-//    public static <T> Parameter getParameter(String key, T value) {
-//        Parameter<T> parameter = new Parameter<>();
-//
-//        parameter.setKey(key);
-//        parameter.setValue(value);
-//        parameter.setRaw(value.toString());
-//
-//        return parameter;
-//    }
-//
-//    public static Parameter getParameter(String raw) {
-//        try {
-//            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS");
-//            Date date = dateFormat.parse(raw.substring(1, (raw.length() - 1)));
-//
-//            return Service.getParameter("TIMESTAMP", date, raw);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return null;
-//    }
-//
-//    public static Parameter getParameter(String raw, boolean zero) {
-//        int index = raw.indexOf(":");
-//
-//        Service.getParameter(raw.substring(0, index))
-//
-//        parameter.setKey(value.substring(0, index));
-//        parameter.setValue((doZeroing && value.endsWith("-")) ? "0" : value.substring(index + 1));
-//
-//        return null;
-//    }
-
     public static Record getRecord(String text) {
         int splitIndex = (text.indexOf("]") + 1);
         String timeStamp = text.substring(0, splitIndex++);
@@ -70,61 +26,47 @@ public class Service {
 
         if (list.get(0).equals(BLANK)) return null;
 
-        Record record = new Record();
-        record.setTimestamp(Service.setParameter(Date.class, true, "TIMESTAMP", timeStamp));
-        record.setReferer(Service.setParameter(String.class, false, "REFERER", list.get(0)));
-        record.setMethod(Service.setParameter(String.class, false, "METHOD", list.get(1)));
-        record.setUrl(Service.setParameter(String.class, false, "URL", list.get(2)));
-        record.setStatus(Service.setParameter(Integer.class, false, list.get(3)));
-        record.setSize(Service.setParameter(Long.class, true, list.get(4)));
-        record.setTime(Service.setParameter(Integer.class, true, list.get(5)));
-        record.setUserName(Service.setParameter(String.class, false, list.get(6)));
-        record.setUserID(Service.setParameter(Long.class, false, list.get(7)));
-        record.setSessionID(Service.setParameter(String.class, false, list.get(8)));
-
-        return record;
-    }
-
-//    public static Parameter setParameter(String keyValue, Class<?> type) {
-//        try {
-//            int index = keyValue.indexOf(":");
-//            String key = keyValue.substring(0, index);
-//            String rawValue = (keyValue.endsWith("-") ? "0" : keyValue.substring(index + 1));
-//
-//            if (type.getSimpleName().toLowerCase().equals("date")) {
-//                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS");
-//
-//                return Service.setParameter(key, dateFormat.parse(rawValue.substring(1, (rawValue.length() - 1))), rawValue);
-//            }
-//
-//            return setParameter(key, type.getConstructor(String.class).newInstance(rawValue));
-//        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException | ParseException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return null;
-//    }
-
-    public static Parameter<?> setParameter(Class<?> type, boolean storeRaw, String key, String value) {
-        Object data;
-        String className = type.getSimpleName().toLowerCase();
-
         try {
-            if (className.equals("date")) {
-                data = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS").parse(value.substring(1, (value.length() - 1)));
-            } else {
-                data = type.getConstructor(String.class).newInstance(value.endsWith("-") ? "0" : value);
-            }
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException | ParseException e) {
+            Record record = new Record();
+            record.setTimestamp(Service.setParameter(Date.class, true, "TIMESTAMP", timeStamp));
+            record.setReferer(Service.setParameter(String.class, false, "REFERER", list.get(0)));
+            record.setMethod(Service.setParameter(String.class, false, "METHOD", list.get(1)));
+            record.setUrl(Service.setParameter(String.class, false, "URL", list.get(2)));
+            record.setStatus(Service.setParameter(Integer.class, false, list.get(3)));
+            record.setSize(Service.setParameter(Long.class, true, list.get(4)));
+            record.setTime(Service.setParameter(Integer.class, true, list.get(5)));
+            record.setUserName(Service.setParameter(String.class, false, list.get(6)));
+            record.setUserID(Service.setParameter(Long.class, false, list.get(7)));
+            record.setSessionID(Service.setParameter(String.class, false, list.get(8)));
+
+            return record;
+        } catch (RuntimeException e) {
             e.printStackTrace();
 
             return null;
         }
-
-        return new Parameter<>(key, (storeRaw ? value : null), data);
     }
 
-    public static Parameter setParameter(Class<?> type, boolean storeRaw, String keyValue) {
+    private static Parameter setParameter(Class<?> type, boolean storeRaw, String key, String value) throws RuntimeException {
+        Object dataObject;
+        String className = type.getSimpleName().toLowerCase();
+
+        try {
+            if (className.equals("date")) {
+                dataObject = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS").parse(value.substring(1, (value.length() - 1)));
+            } else {
+                dataObject = type.getConstructor(String.class).newInstance((!className.equals("string") && (value.endsWith("-")) ? "0" : value));
+            }
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException | ParseException e) {
+            e.printStackTrace();
+
+            throw new RuntimeException("Ошибка создания параметра ".concat(key).concat(":").concat(value), e);
+        }
+
+        return new Parameter<>(key, (storeRaw ? value : null), dataObject);
+    }
+
+    private static Parameter setParameter(Class<?> type, boolean storeRaw, String keyValue) {
         int splitIndex = keyValue.indexOf(":");
 
         String key = keyValue.substring(0, splitIndex);

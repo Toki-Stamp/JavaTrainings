@@ -1,4 +1,4 @@
-package analytics.entity.parameter;
+package analytics.entity;
 
 /**
  * Created by Fomichev Yuri on 24.06.2019
